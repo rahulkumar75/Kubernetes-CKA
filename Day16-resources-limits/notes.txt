@@ -1,0 +1,9 @@
+
+#Create yaml file of resources
+kubectl get deployment metrics-server -n kube-system -o yaml > ms.yaml
+Edit file → add args → then:
+
+kubectl apply -f ms.yaml
+
+
+kubectl top pods --sort-by=memory

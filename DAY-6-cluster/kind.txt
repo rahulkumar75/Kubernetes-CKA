@@ -1,0 +1,89 @@
+## ✅ KIND Frequently Used Commands (Quick List)
+
+---
+
+### 🔹 Create Cluster
+
+```bash id="h3w3q9"
+kind create cluster --name my-cluster
+```
+
+With config:
+
+```bash id="1t6kqg"
+kind create cluster --name my-cluster --config config.yaml
+```
+
+---
+
+### 🔹 List Clusters
+
+```bash id="d0c7ul"
+kind get clusters
+```
+
+---
+
+### 🔹 Delete Cluster
+
+```bash id="4e1p6m"
+kind delete cluster --name my-cluster
+```
+
+---
+
+### 🔹 Get Nodes (via kubectl)
+
+```bash id="y0l3yz"
+k get nodes
+```
+
+---
+
+### 🔹 Check Context
+
+```bash id="1c6vlf"
+k config current-context
+```
+
+---
+
+### 🔹 Switch Context
+
+```bash id="8g6d4n"
+k config use-context kind-my-cluster
+```
+
+---
+
+### 🔹 Export kubeconfig
+
+```bash id="gk7z0m"
+kind get kubeconfig --name my-cluster
+```
+
+---
+
+### 🔹 Load Docker Image into KIND
+
+```bash id="3i4t9c"
+kind load docker-image my-image --name my-cluster
+```
+
+---
+
+### 🔹 Get Cluster Info
+
+```bash id="2m5n7s"
+kubectl cluster-info
+```
+
+---
+
+## ⚡ One-line Summary
+
+👉 Create → List → Use → Delete cluster
+
+---
+
+Say **“kubectl cmds”** for similar short list 🔥

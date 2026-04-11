@@ -1,0 +1,23 @@
+List all ns:
+kubectl get ns
+
+List All resource inside the ns:
+kubectl get all --namespace=kubesystem
+kubectl get all -n <nameSpace-name>
+
+Set default namespace:
+kubectl config set-context --current --namespace=<namespace>
+
+
+Navigate to ANY ns:
+Use namespace in command (most common)
+kubectlget pods -n <namespace>
+
+Check current ns:
+kubectl config view --minify | grep namespace
+
+Create
+kubectl create ns my-ns
+
+Delete
+kubectl delete ns my-ns

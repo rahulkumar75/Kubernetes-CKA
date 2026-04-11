@@ -1,0 +1,91 @@
+## ✅ kubectl (k) Frequently Used Commands
+
+---
+
+### 🔹 Cluster / Nodes
+
+```bash id="m2h9x1"
+k get nodes
+k describe node <node>
+```
+
+---
+
+### 🔹 Pods
+
+```bash id="j7k3l2"
+k get pods
+k get pods -o wide
+k describe pod <pod>
+k delete pod <pod>
+```
+
+---
+
+### 🔹 Create / Apply
+
+```bash id="n4p8q6"
+k apply -f file.yaml
+k create -f file.yaml
+```
+
+---
+
+### 🔹 Logs
+
+```bash id="v5r2t1"
+k logs <pod>
+k logs -f <pod>
+```
+
+---
+
+### 🔹 Exec (inside pod)
+
+```bash id="u8w1e3"
+k exec -it <pod> -- sh
+```
+
+---
+
+### 🔹 Labels
+
+```bash id="z9x6c4"
+k get nodes --show-labels
+k label nodes <node> key=value
+```
+
+---
+
+### 🔹 Context
+
+```bash id="a3b7d5"
+k config current-context
+k config use-context <context>
+```
+
+---
+
+### 🔹 Events (debug)
+
+```bash id="f2g8h9"
+k get events --sort-by=.metadata.creationTimestamp
+```
+
+---
+
+### 🔹 Resources (all)
+
+```bash id="k1l4m7"
+k get all
+```
+
+---
+
+## ⚡ One-line
+
+👉 create → check → debug → exec → delete
+
+---
+
+Say **“cka cheat sheet”** if you want exam-focused commands 🔥

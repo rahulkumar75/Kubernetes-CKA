@@ -1,0 +1,25 @@
+Install Metrics Server
+
+Step 1: Apply official metrics-server
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+Step 2: Patch for local cluster (VERY IMPORTANT for kind/minikube)
+Edit deployment:
+kubectl edit deployment metrics-server -n kube-system
+
+Add this under containers → args:
+ --kubelet-insecure-tls
+ --kubelet-preferred-address-types=InternalIP
+
+Wait for pod
+kubectl get pods -n kube-system | grep metrics
+
+Step 4: Verify
+kubectl top nodes
+kubectl top pods
+
+--------
+⚡ Quick One-Liner (Faster way)
+kubectl patch deployment metrics-server -n kube-system \
+--type='json' \
+-p='[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}]'
