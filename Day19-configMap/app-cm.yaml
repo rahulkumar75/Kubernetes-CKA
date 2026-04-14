@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: myapp
+  namespace: default
+data:
+  id: rk157
+  password: Rahul@123

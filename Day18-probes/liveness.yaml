@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: liveness-exec
+  labels:
+    test: liveness
+spec:
+  containers:
+  - name: liveness
+    image: busybox:1.36
+    command: ["/bin/sh", "-c"]
+    args:
+      - touch /tmp/healthy; sleep 30; rm -f /tmp/healthy; sleep 600
+    livenessProbe:
+      exec:
+        command:
+          - cat
+          - /tmp/healthy
+      initialDelaySeconds: 5
+      periodSeconds: 5
+
+
+# 🧠 What This Pod Does
+# Creates file /tmp/healthy
+# After 30 sec → deletes it
+# Liveness probe:
+# Runs cat /tmp/healthy
+# If file exists → ✅ success
+# If file missing → ❌ failure → container restarts
+
+
+# ⚡ Expected Behavior
+# First 30 sec → Pod is healthy
+# After 30 sec → file deleted
+# Probe fails → Kubernetes restarts container
