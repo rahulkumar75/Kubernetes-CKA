@@ -1,0 +1,55 @@
+Check access- 
+k auth can-i get pod
+k auth whoami
+
+Check User has access or not:
+k auth can-i get pod --as adam
+
+Verify Current User:
+kubectl config view --minify
+
+#Context:
+Current:    kubectl config current-context
+Use/Switch: kubectl config use-context rahul-context
+Verify:     kubectl config get-contexts 
+Delete:     kubectl config delete-context rahul-context
+
+We follow RBAC approach to give access to user-
+1. Create Role and apply
+2. Create Role binding and apply
+
+Role:
+kubectl get role -n project-devops
+kubectl describe role pod-reader -n project-devops
+
+RoleBinding:
+kubectl get rolebinding -n project-devops
+kubectl describe rolebinding read-pod-binding -n project-devops
+
+
+--------------------------------------------------
+Correct RBAC resources to explain:
+--------------------------------------------------
+kubectl explain role
+kubectl explain rolebinding
+kubectl explain clusterrole
+kubectl explain clusterrolebinding
+----------------------------------
+Example:
+kubectl explain role
+kubectl explain role.rules
+kubectl explain rolebinding.subjects
+--------------------------------------------------
+
+
+# Quick CKA Tip:
+
+RBAC = 4 main objects
+
+- Role
+- RoleBinding
+- ClusterRole
+- ClusterRoleBinding
+
+Use: To see available RBAC resources.
+kubectl api-resources | grep -i role

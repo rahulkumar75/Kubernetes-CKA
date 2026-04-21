@@ -1,0 +1,30 @@
+# Quick Commands:
+cat ~/.kube/config | /Users/rahulkumar/.kube/config
+kubectl config get-contexts
+kubectl config use-context kind-kind
+kubectl config current-context
+
+# Always know:
+
+kubeconfig = client auth file
+stores cluster endpoint, certs, users, contexts
+kubectl reads this file
+
+# Location of all cert and key of API server
+/etc/kubernetes/pki
+
+# Controle Plane Explore
+Navigate to CP ➜  ~ docker exec -it cka-cluster-control-plane bash 
+
+# Lists CP Components -> root@cka-cluster-control-plane:/# cd /etc/kubernetes//manifests/
+root@cka-cluster-control-plane:/etc/kubernetes/manifests# ls -lrt
+total 16
+-rw------- 1 root root 2618 Apr 19 04:33 etcd.yaml
+-rw------- 1 root root 3968 Apr 19 04:33 kube-apiserver.yaml
+-rw------- 1 root root 3500 Apr 19 04:33 kube-controller-manager.yaml
+-rw------- 1 root root 1726 Apr 19 04:33 kube-scheduler.yaml
+
+----
+
+
+

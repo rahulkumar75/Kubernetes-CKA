@@ -1,0 +1,43 @@
+Client and server have -> Pub Cert & Private key
+
+Certificate -> *.cert and *.pem
+Private key -> *.key
+
+Issue Cert -> For new user to grant perm of cluster (Exm)
+
+Exec inside pods:
+1. Gen Private key -> openssl genrsa  -out john.key 2048
+---
+# ls | grep .key
+john.key 
+cat john.key 
+
+
+2. CSR content generated from OpenSSL. -> openssl req -new -key john.key -out john.csr -subj "/CN=john"
+---
+# ls | grep .csr
+john.csr
+cat john.csr -> Plain file
+
+
+3. Encryption CSR file - Encoded:
+cat john.csr | base64 | tr -d "\n" -> copy and then Paste output inside request in (john-csr.yaml) file.
+
+
+4. Apply CSR yaml file -> k apply -f john-csr.yaml
+
+
+5. Approve -> k certificate approve john-csr
+
+
+6. kubectl describe csr <name-of-csr>
+
+
+7.Generate Yaml file -> To Share Certificate(encoded) with user (file created) -> k get csr adam-csr -o yaml > adam-issuecert.yaml
+
+
+8. Get Certificate -> kubectl get csr john-csr -o jsonpath='{.status.certificate}' | base64 -d
+
+9. To decode the adam.key 
+certificate(copy request value from issued-cert.ymal) -> 
+Decode By using Private key -> echo “paste-key-here” | base64  —d

@@ -1,0 +1,25 @@
+List Resources: namespaced level
+kubectl api-resources --namespaced=true
+
+List Resources: cluster level.
+kubectl api-resources --namespaced=false
+
+Imperative way to create Role and RoleBinding | # Help | --help
+Cluster Role:
+k create clusterrole --help
+-> k create clusterrole pod-reader-cl --verb=get,list,watch --resource=pods -o yaml > role.yaml
+
+Cluster RoleBinding:
+k create clusterrolebinding --help
+
+Get Role:
+k get clusterrole pod-reader
+kubectl get clusterrolebinding pod-reader-binding
+
+Describe:
+k describe clusterrole pod-reader
+kubectl describe clusterrolebinding pod-reader-binding
+
+TEMPLATE:
+kubectl create clusterrole NAME --verb=VERBS --resource=RESOURCE
+kubectl create clusterrolebinding NAME --clusterrole=ROLE --user=USER

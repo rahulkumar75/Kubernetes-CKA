@@ -217,5 +217,3 @@ subjects:
 NOT ServiceAccount.
 
 ---
-
-# 🚀 If you want, I can also give you **CKA Shortcut Method (2-minute CSR task in exam)** used by toppers.

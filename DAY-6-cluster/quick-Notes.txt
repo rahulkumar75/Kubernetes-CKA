@@ -1,0 +1,5 @@
+#Context:
+Current:                kubectl config current-context
+Use/Switch:             kubectl config use-context rahul-context
+Verify/Lists/Active:    kubectl config get-contexts 
+Delete:                 kubectl config delete-context rahul-context

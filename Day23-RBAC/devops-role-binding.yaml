@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-pod-binding
+  namespace: project-devops
+subjects:
+# We can specify more subjects
+- kind: User
+  name: Rahul
+  apiGroup: rbac.authorization.k8s.io
+
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
