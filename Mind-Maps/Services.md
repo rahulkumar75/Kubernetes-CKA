@@ -1,4 +1,4 @@
-Absolutely. Here's a **CKA Revision Mind Map** for **Services + NodePort + KIND Networking** that captures everything you debugged today.
+**CKA Revision Mind Map** for **Services + NodePort + KIND Networking** that captures everything you debugged today.
 
 ```text
                            KUBERNETES SERVICES

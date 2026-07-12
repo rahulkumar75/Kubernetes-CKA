@@ -1,0 +1,76 @@
+### Scenario
+
+You want to:
+
+* ✅ Keep a folder/files on your local machine
+* ✅ Remove them from GitHub
+* ✅ Prevent them from being committed again
+
+### Steps
+
+```bash
+# 1. Remove folder from Git tracking only
+git rm -r --cached <folder_name>
+
+# 2. Add folder to .gitignore
+echo "<folder_name>/" >> .gitignore
+
+# 3. Stage .gitignore
+git add .gitignore
+
+# 4. Commit the change
+git commit -m "Remove <folder_name> from repository"
+
+# 5. Get latest changes from GitHub
+git pull --rebase origin main
+
+# 6. Push changes
+git push origin main
+```
+
+### Example
+
+```bash
+git rm -r --cached English
+
+echo "English/" >> .gitignore
+
+git add .gitignore
+
+git commit -m "Remove English folder from repository"
+
+git pull --rebase origin main
+
+git push origin main
+```
+
+### Verify
+
+```bash
+git status
+```
+
+Expected:
+
+```text
+On branch main
+nothing to commit, working tree clean
+```
+
+### If `git push` is rejected
+
+```bash
+git pull --rebase origin main
+git push origin main
+```
+
+### If you accidentally run `git rm -r <folder_name>` (without `--cached`)
+
+Before committing:
+
+```bash
+git restore --staged <folder_name>
+git restore <folder_name>
+```
+
+This is the standard workflow I recommend for removing personal notes, PDFs, local configs, `.terraform`, lab files, etc. from GitHub while keeping them on your machine.
