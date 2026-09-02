@@ -1,4 +1,4 @@
-If you mean **Kubernetes CSR YAML file** (CertificateSigningRequest), here is a standard example used in **CKA practice**:
+**Kubernetes CSR YAML file** (CertificateSigningRequest):
 
 ```yaml
 apiVersion: certificates.k8s.io/v1
@@ -78,7 +78,7 @@ kubectl get csr rahul-csr -o jsonpath='{.status.certificate}' | base64 -d
 
 ---
 
-# CKA Exam Quick Template
+# Quick Template
 
 ```yaml
 apiVersion: certificates.k8s.io/v1

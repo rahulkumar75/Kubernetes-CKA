@@ -1,6 +1,6 @@
-**FULL HANDS-ON CKA Question: Create user dev-user using CSR YAML + RBAC + kubeconfig** (very common exam task).
+**FULL HANDS-ON Scenario: Create user dev-user using CSR YAML + RBAC + kubeconfig** (very common exam task).
 
-Perfect. Here is a **real CKA-style hands-on lab** for **CSR + RBAC + kubeconfig** (very common exam pattern).
+Hands-on lab** for **CSR + RBAC + kubeconfig**.
 
 ---
 
