@@ -178,6 +178,10 @@ Useful output formats include:
 
 # 5. Inspect a Pod
 
+There are 5 Life Cycle status of Pod
+
+![pod-life-cycle](image.png)
+
 ### Basic status
 
 ```bash

@@ -1,473 +1,501 @@
-# 📑 Node Affinity in Kubernetes
+ # 📑 Node Affinity in Kubernetes
 
-## 📌 Problem Statement
+## 🎯 Objective
 
-Sometimes, we want to control **which node a Pod should run on**.
-
-Basic scheduling may not be enough when:
-
-- You have **specific hardware (GPU, SSD, etc.)**
-- You want **strict placement rules**
-- You need **better control than Taints & Tolerations alone**
+* Understand **Node Affinity** and how it controls Pod placement.
+* Learn the difference between **required** and **preferred** affinity.
+* Understand how Node Affinity differs from **Taints & Tolerations**.
+* Practice scheduling Pods using **node labels + affinity**.
+* Combine **Node Affinity + Taints/Tolerations** for controlled placement.
 
 ---
 
-## 🔧 What is Node Affinity?
+# 1. What is Node Affinity?
 
-**Node Affinity** is a way to **constrain which nodes your Pod can be scheduled on** based on **node labels**.
+**Node Affinity** allows you to control which Nodes a Pod can be scheduled on based on **Node labels**.
 
-👉 It is a **more advanced and flexible version of nodeSelector**
+It is a more flexible alternative to `nodeSelector`.
+
+
+
+```text
+Pod
+ ↓
+Node Affinity rules
+ ↓
+Match Node labels
+ ↓
+Eligible Node
+```
+
+### Common use cases
+
+* GPU / AI workloads
+* SSD or high-performance Nodes
+* Environment-specific workloads
+* Dedicated infrastructure
+* Compliance-sensitive workloads
+
+Example:
+
+![without-node-affinity](/15-NodeAffinity/images/image-6.png)
+- We overcome the limitations as shown in the picture.
+
+![node-affinity](/15-NodeAffinity/images/image-7.png)
+
+![node-affinity-2](/15-NodeAffinity/images/image-8.png)
+- Finally, the pod is scheduled.
+
+## In case someone removes the label value:
+- If the label value is blank.
+
+![no-labels-with-affinity](/15-NodeAffinity/images/image-9.png)
+
+- So, in the case of Taints & Tolerance, it could be affected.
+- But in the case of node affinity, we can manage this by using either of the two properties.
+
+- There are two properties…
+![alt text](/15-NodeAffinity/images/image-10.png)
+
+
+1. **Required** during Scheduling, Ignore During Execution:
+- In this case, the Pod label value needs to **match** with Node label (operator).
+
+2. **Preferred** during Scheduling, Ignore During Execution:
+- In this case, the Pod label value, even if not matched with the Node label value, will cause the pod will be scheduled. (Even then, it will be scheduled)
+
+- **Last part says: ignored during execution** which means here, pod has already been scheduled on the node. Even after that, if there has been a change at the node level or anything, it won't impact the existing pod.
+
+- Those existing pods will keep on running; it will only **impact the newer pods** that are yet to be schedule (or) that pod, which we will be scheduling after set the affinity.
+
+- And the difference between those two is only **required** during scheduling and **preferred** during scheduling
+
 
 ---
 
-## 🧠 Key Idea
+# 2. Node Affinity vs Taints & Tolerations
 
-> Pod → defines rules
-> 
-> 
-> Node → must satisfy those rules (based on labels)
-> 
+| Node Affinity                  | Taints & Tolerations          |
+| ------------------------------ | ----------------------------- |
+| Attracts/selects Pods to Nodes | Repels unwanted Pods          |
+| Rules are defined on the Pod   | Taint is defined on the Node  |
+| Can enforce Node selection     | Toleration only allows access |
+| Uses Node labels               | Uses taints/tolerations       |
 
----
+### 🧠 Easy Memory
 
-## 📷 Node Affinity Concept
+> **Taint → Node says NO**
+> **Toleration → Pod says I CAN**
+> **Affinity → Pod says I WANT**
 
-[Image](https://images.openai.com/static-rsc-4/kxRWRXAUREtfsFkzw-bzAwJgCsj-mQLM887wZ53-5ZIhYdE2semvwQzrlTJFPum8UDM2DIkbDfb9HdXkHU_kaGtNdKCg2U_BQQeNiI7dORpHJz6KrVei_JR85fH2e9Q8H882KtyVpDu_LDTWS_EBXTi5JeVsCeRBiubWQUGPbbDpFtGG8c7AYAPGUP5c5oMA?purpose=fullsize)
-
-
-
----
-
-# ⚠️ Limitation of Taints & Tolerations
-
-- Taints prevent pods from scheduling **unless tolerated**
-- But they **don’t guarantee** pod will go to a specific node
-
-👉 Example problem:
-
-- Pod tolerates taint → it can go to multiple nodes
-- ❌ No strict control
+A toleration alone does **not** tell Kubernetes which Node to choose.
 
 ---
 
-# ✅ Node Affinity Solves This
+# 3. Types of Node Affinity
 
-Node Affinity allows:
-
-- 🎯 **Hard rules (must match)**
-- 🎯 **Soft rules (preferred match)**
-
----
-
-# 🔑 Types of Node Affinity
-
-## 1. Required (Hard Rule)
-
-### `requiredDuringSchedulingIgnoredDuringExecution`
-
-👉 **Strict condition**
-
-- Pod **WILL NOT schedule** if condition not met
-- Node **must match label**
-
-✔ Example:
+## Required — Hard Rule
 
 ```yaml
 requiredDuringSchedulingIgnoredDuringExecution:
-  nodeSelectorTerms:
-  - matchExpressions:
-    - key: disktype
-      operator: In
-      values:
-      - ssd
 ```
 
-✔ Meaning:
+The Pod can be scheduled **only on Nodes matching the rule**.
 
-- Pod only runs on nodes with `disktype=ssd`
+Example:
+
+```yaml
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: disktype
+              operator: In
+              values:
+                - ssd
+```
+
+Meaning:
+
+```text
+disktype=ssd → eligible
+disktype=hdd → not eligible
+```
+
+If no matching Node is available, the Pod remains `Pending`.
 
 ---
 
-## 2. Preferred (Soft Rule)
-
-### `preferredDuringSchedulingIgnoredDuringExecution`
-
-👉 **Best effort condition**
-
-- Scheduler **tries** to match
-- If not possible → still schedules
-
-✔ Example:
+## Preferred — Soft Rule
 
 ```yaml
 preferredDuringSchedulingIgnoredDuringExecution:
-- weight: 1
-  preference:
-    matchExpressions:
-    - key: disktype
-      operator: In
-      values:
-      - ssd
 ```
 
-✔ Meaning:
+The Scheduler **prefers** matching Nodes but can use another suitable Node if necessary.
 
-- Prefer SSD nodes
-- But fallback allowed
+```yaml
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: disktype
+              operator: In
+              values:
+                - ssd
+```
 
----
+Meaning:
 
-# ⚠️ Important Concept
-
-## 🧩 “Ignored During Execution”
-
-👉 This is VERY IMPORTANT for interviews
-
-- Once Pod is scheduled → it **won’t be evicted**
-- Even if:
-    - Node label changes
-    - Label is removed
-
-✔ Impact:
-
-- Existing Pods → ✅ Keep running
-- New Pods → ❗ Re-evaluated
+> Prefer SSD Nodes, but fallback is allowed.
 
 ---
 
-# 🧪 What if Label is Removed?
+# 4. `IgnoredDuringExecution`
 
-## Scenario:
+Both common affinity types use:
 
-- Node label becomes empty / removed
+```text
+IgnoredDuringExecution
+```
 
-### Behavior:
+It means the rule is evaluated during **scheduling**, but a later Node-label change does not cause the already-running Pod to be evicted because of that affinity rule.
 
-| Type | Result |
-| --- | --- |
-| Required | New pods ❌ won’t schedule |
-| Preferred | New pods ✅ may still schedule |
-| Existing Pods | ✅ No impact |
+Example:
+
+```text
+Pod scheduled
+     ↓
+Node has disktype=ssd
+     ↓
+Label removed
+     ↓
+Existing Pod → keeps running
+New Pod      → affinity evaluated again
+```
+
+### 🧠 CKA Recall
+
+> **Required = Must match when scheduling**
+> **Preferred = Try to match when scheduling**
+> **IgnoredDuringExecution = Don't evict because the label later changed**
 
 ---
 
-# 🔍 Operators in Node Affinity
+# 5. Node Affinity Operators
 
-| Operator | Meaning |
-| --- | --- |
-| In | Value must match |
-| NotIn | Value must NOT match |
-| Exists | Key must exist |
-| DoesNotExist | Key must NOT exist |
+| Operator       | Meaning                                             |
+| -------------- | --------------------------------------------------- |
+| `In`           | Label value must be one of the specified values     |
+| `NotIn`        | Label value must not be one of the specified values |
+| `Exists`       | Label key must exist                                |
+| `DoesNotExist` | Label key must not exist                            |
+| `Gt`           | Numeric value must be greater than                  |
+| `Lt`           | Numeric value must be less than                     |
 
-✔ Example:
+Example:
 
 ```yaml
 operator: Exists
 ```
 
-👉 Only checks label presence, not value
+means only the **presence of the label key** matters.
 
 ---
 
-# ⚡ Node Affinity + Taints & Tolerations
+# 🧪 6. Hands-on Implementation
 
-## 📷 Combined Approach
+## Step 1 — Check Nodes
 
-[Image](https://images.openai.com/static-rsc-4/1N2nKBt3aRAmhJv5kFwDG-9AKtc6tCdNZCoszJ1dFwv61eYPDw_RnKrdUpw2qglZIa837-b0GY8wPQIkJID523GoRFUGBNyFdS8Lcjj07eq5datqPwdlN5fUenWYzzEcEMLZ-QFVJdkbyMUw1R00cwt2U3AqiF5HFjmamMtWYPB_4qQWxQUSlP4g62jnnJ2c?purpose=fullsize)
-
-
----
-
-## 🔥 Why Combine Both?
-
-| Feature | Role |
-| --- | --- |
-| Taints & Tolerations | ❌ Restrict unwanted pods |
-| Node Affinity | ✅ Force desired placement |
-
----
-
-## 💡 Real Problem
-
-👉 Using only Taints:
-
-- Pod may still go to **any tolerated node**
-- ❌ Not strict
-
----
-
-## ✅ Solution (Combination)
-
-1. Add **taint** → restrict nodes
-2. Add **toleration** → allow pod
-3. Add **node affinity** → force correct node
-
-👉 Result:
-
-- 🎯 **Only desired node gets the pod**
-
----
-
-
-If you want next step, I can give you:
-
-✅ **Real CKA exam YAML questions**
-
-✅ **Hands-on lab (step-by-step kubectl commands)**
-
-✅ **Tricky interview questions on scheduling (very important)**
-
-# 🆚 Node Affinity vs Taints & Tolerations
-
-| Feature | Node Affinity | Taints & Tolerations |
-| --- | --- | --- |
-| Purpose | Attract pods to nodes | Repel unwanted pods |
-| Type | Rule-based | Filter-based |
-| Strict Control | ✅ Yes | ❌ No |
-| Scheduling Guarantee | ✅ Yes (required) | ❌ No |
-| Best Use | Node selection | Node protection |
-
----
-
-# 📦 Use Cases
-
-## 🚀 When to Use Node Affinity
-
-1. **Large Clusters**
-    - Control workload placement
-2. **GPU / AI / ML Workloads**
-    - Run only on GPU nodes
-3. **SSD / High-performance nodes**
-    - Database workloads
-4. **Environment separation**
-    - Dev / Prod nodes
-5. **Compliance / Security**
-    - Sensitive workloads on specific nodes
-
----
-
-# 🧠 Final Summary (Interview Ready)
-
-👉 Node Affinity is used to **control Pod placement using node labels**
-
-- **Required** → strict (must match)
-- **Preferred** → soft (best effort)
-- **IgnoredDuringExecution** → no impact after scheduling
-
-👉 Best practice:
-
-> Combine **Node Affinity + Taints & Tolerations** for full control
-> 
-
-# 📑 Node Affinity in Kubernetes
-
-## 📌 Problem Statement
-
-Sometimes, we want to control **which node a Pod should run on**.
-
-Basic scheduling may not be enough when:
-
-- You have **specific hardware (GPU, SSD, etc.)**
-- You want **strict placement rules**
-- You need **better control than Taints & Tolerations alone**
-
----
-
-## 🔧 What is Node Affinity?
-
-**Node Affinity** is a way to **constrain which nodes your Pod can be scheduled on** based on **node labels**.
-
-👉 It is a **more advanced and flexible version of nodeSelector**
-
----
-
-## 🧠 Key Idea
-
-> Pod → defines rules
-> 
-> 
-> Node → must satisfy those rules (based on labels)
-> 
-
----
-
-## 📷 Node Affinity Concept
-
-[Image](https://images.openai.com/static-rsc-4/kxRWRXAUREtfsFkzw-bzAwJgCsj-mQLM887wZ53-5ZIhYdE2semvwQzrlTJFPum8UDM2DIkbDfb9HdXkHU_kaGtNdKCg2U_BQQeNiI7dORpHJz6KrVei_JR85fH2e9Q8H882KtyVpDu_LDTWS_EBXTi5JeVsCeRBiubWQUGPbbDpFtGG8c7AYAPGUP5c5oMA?purpose=fullsize)
-
-
----
-
-# ⚠️ Limitation of Taints & Tolerations
-
-- Taints prevent pods from scheduling **unless tolerated**
-- But they **don’t guarantee** pod will go to a specific node
-
-👉 Example problem:
-
-- Pod tolerates taint → it can go to multiple nodes
-- ❌ No strict control
-
----
-
-# ✅ Node Affinity Solves This
-
-Node Affinity allows:
-
-- 🎯 **Hard rules (must match)**
-- 🎯 **Soft rules (preferred match)**
-
----
-
-# 🔑 Types of Node Affinity
-
-## 1. Required (Hard Rule)
-
-### `requiredDuringSchedulingIgnoredDuringExecution`
-
-👉 **Strict condition**
-
-- Pod **WILL NOT schedule** if condition not met
-- Node **must match label**
-
-✔ Example:
-
-```yaml
-requiredDuringSchedulingIgnoredDuringExecution:
-  nodeSelectorTerms:
-  - matchExpressions:
-    - key: disktype
-      operator: In
-      values:
-      - ssd
+```bash
+kubectl get nodes
+kubectl get nodes --show-labels
 ```
 
-✔ Meaning:
-
-- Pod only runs on nodes with `disktype=ssd`
+Choose a Node for the lab.
 
 ---
 
-## 2. Preferred (Soft Rule)
+## Step 2 — Add a Label
 
-### `preferredDuringSchedulingIgnoredDuringExecution`
-
-👉 **Best effort condition**
-
-- Scheduler **tries** to match
-- If not possible → still schedules
-
-✔ Example:
-
-```yaml
-preferredDuringSchedulingIgnoredDuringExecution:
-- weight: 1
-  preference:
-    matchExpressions:
-    - key: disktype
-      operator: In
-      values:
-      - ssd
+```bash
+kubectl label node <node-name> disktype=ssd
 ```
 
-✔ Meaning:
+Verify:
 
-- Prefer SSD nodes
-- But fallback allowed
-
----
-
-# ⚠️ Important Concept
-
-## 🧩 “Ignored During Execution”
-
-👉 This is VERY IMPORTANT for interviews
-
-- Once Pod is scheduled → it **won’t be evicted**
-- Even if:
-    - Node label changes
-    - Label is removed
-
-✔ Impact:
-
-- Existing Pods → ✅ Keep running
-- New Pods → ❗ Re-evaluated
-
----
-
-# 🧪 What if Label is Removed?
-
-## Scenario:
-
-- Node label becomes empty / removed
-
-### Behavior:
-
-| Type | Result |
-| --- | --- |
-| Required | New pods ❌ won’t schedule |
-| Preferred | New pods ✅ may still schedule |
-| Existing Pods | ✅ No impact |
-
----
-
-# 🔍 Operators in Node Affinity
-
-| Operator | Meaning |
-| --- | --- |
-| In | Value must match |
-| NotIn | Value must NOT match |
-| Exists | Key must exist |
-| DoesNotExist | Key must NOT exist |
-
-✔ Example:
-
-```yaml
-operator: Exists
+```bash
+kubectl get nodes --show-labels
 ```
 
-👉 Only checks label presence, not value
+---
+
+## Step 3 — Create a Pod with Required Affinity
+
+Create `affinity-pod.yaml`:
+
+```yaml
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: nginx-affinity
+
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: disktype
+                operator: In
+                values:
+                  - ssd
+
+  containers:
+    - name: nginx
+      image: nginx
+```
+
+Apply:
+
+```bash
+kubectl apply -f affinity-pod.yaml
+```
+
+Verify placement:
+
+```bash
+kubectl get pod nginx-affinity -o wide
+```
+
+The Pod should run on a Node with:
+
+```text
+disktype=ssd
+```
 
 ---
 
-# ⚡ Node Affinity + Taints & Tolerations
 
-## 🔥 Why Combine Both?
+# 7. Test the Affinity Rule
 
-| Feature | Role |
-| --- | --- |
-| Taints & Tolerations | ❌ Restrict unwanted pods |
-| Node Affinity | ✅ Force desired placement |
+Remove the label:
+
+```bash
+kubectl label node <node-name> disktype-
+```
+
+Check the existing Pod:
+
+```bash
+kubectl get pod nginx-affinity -o wide
+```
+
+The existing Pod continues running.
+
+Now create another Pod using the same affinity:
+
+```bash
+kubectl apply -f affinity-pod.yaml
+```
+
+Check:
+
+```bash
+kubectl get pods -o wide
+```
+
+If no matching Node exists, the new Pod remains:
+
+```text
+Pending
+```
+
+### 🧪 Preferred Node Affinity Lab
+
+Create `preferred-affinity-pod.yaml`:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-preferred
+spec:
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: disktype
+                operator: In
+                values:
+                  - ssd
+  containers:
+    - name: nginx
+      image: nginx
+```
+
+Apply:
+
+```bash
+kubectl apply -f preferred-affinity-pod.yaml
+```
+
+Check placement:
+
+```bash
+kubectl get pod nginx-preferred -o wide
+```
+
+### Test fallback behavior
+
+Remove the `disktype=ssd` label:
+
+```bash
+kubectl label node <node-name> disktype-
+```
+
+Create the Pod again:
+
+```bash
+kubectl delete pod nginx-preferred
+kubectl apply -f preferred-affinity-pod.yaml
+```
+
+Check:
+
+```bash
+kubectl get pod nginx-preferred -o wide
+```
+
+The Pod can still be scheduled on another suitable Node because **Preferred Affinity is a soft rule**.
+
+🧠 **CKA:** 
+```
+ `required` = must match → otherwise `Pending`
+ `preferred` = try to match → fallback allowed
+```
+
 
 ---
 
-## 💡 Real Problem
+# 8. Combine Taints + Toleration + Affinity
 
-👉 Using only Taints:
+For a dedicated GPU Node, you may want:
 
-- Pod may still go to **any tolerated node**
-- ❌ Not strict
+```text
+                  GPU Node
+                     │
+          ┌──────────┴──────────┐
+          │                     │
+       Taint                 Label
+    gpu=true               hardware=gpu
+          │                     │
+          ↓                     ↓
+   Toleration              Affinity
+          │                     │
+          └──────────┬──────────┘
+                     ↓
+                 GPU Pod
+```
+
+### Why combine them?
+
+**Taint:**
+
+> Prevent unwanted Pods from using the Node.
+
+**Toleration:**
+
+> Allow the intended Pod to use the Node.
+
+**Node Affinity:**
+
+> Ensure the Pod selects the correct Node.
+
+This gives stronger placement control than using either mechanism alone.
 
 ---
 
-## ✅ Solution (Combination)
+# 🔧 9. Troubleshooting
 
-1. Add **taint** → restrict nodes
-2. Add **toleration** → allow pod
-3. Add **node affinity** → force correct node
+If a Pod is stuck in `Pending`:
 
-👉 Result:
+```bash
+kubectl get pod <pod-name>
+kubectl describe pod <pod-name>
+```
 
-- 🎯 **Only desired node gets the pod**
+Check the **Events** section.
+
+Then verify Node labels:
+
+```bash
+kubectl get nodes --show-labels
+```
+
+Check the affinity configuration:
+
+```bash
+kubectl get pod <pod-name> -o yaml
+```
+
+### Common causes
+
+* Required label does not exist.
+* Label key/value is incorrect.
+* Node affinity rule is incorrect.
+* Node has a taint without a matching toleration.
+* Node does not have enough resources.
+
+### CKA debugging pattern
+
+```text
+Pod Pending
+    ↓
+kubectl describe pod
+    ↓
+Check Events
+    ↓
+Check Node labels
+    ↓
+Check affinity
+    ↓
+Check taints/tolerations
+```
 
 ---
 
+# 🧠 Final CKA Recall
 
-If you want next step, I can give you:
+```text
+nodeSelector
+→ Simple Node selection
 
-✅ **Real CKA exam YAML questions**
+Node Affinity
+→ Advanced Node selection
 
-✅ **Hands-on lab (step-by-step kubectl commands)**
+Required
+→ Must match
 
-✅ **Tricky interview questions on scheduling (very important)**
+Preferred
+→ Best effort
+
+Taint
+→ Repels Pods
+
+Toleration
+→ Allows Pod onto tainted Node
+
+Affinity
+→ Selects desired Node
+```
+
+> **Most important memory:**
+> **Taints/Tolerations answer "Can this Pod use the Node?"**
+> **Node Affinity answers "Which Node should this Pod use?"**

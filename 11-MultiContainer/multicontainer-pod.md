@@ -1,4 +1,4 @@
-# Multi-Container Pods in Kubernetes (Basic → Intermediate)
+# Multi-Container Pods in Kubernetes
 
 Yes, a single Pod can run **multiple containers**.
 
