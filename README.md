@@ -5,15 +5,20 @@
 
 ## 📚 About This Repository
 
-This repository documents my hands-on journey to master Kubernetes and prepare for the **Certified Kubernetes Administrator (CKA)** exam. Each folder represents a deep-dive into a specific Kubernetes (or supporting DevOps) concept — complete with YAML manifests, configuration files, and practical examples.
+This repository documents my hands-on journey to strengthen my **Kubernetes skills at a CKA-level standard**. Each folder covers a specific Kubernetes or supporting DevOps concept through practical labs, YAML manifests, configuration files, troubleshooting exercises, and real-world scenarios. It serves as both a learning record and a practical reference as I prepare for the **Certified Kubernetes Administrator (CKA)** exam.
 
-> 📁 **Note on folder naming:** Folders are organized by **topic number** (e.g. `08-Contorller-ReplicaSet`, `23-RBAC`). Numbers reflect the order topics were studied, so they aren't always sequential (some numbers are skipped or reused for related sub-topics) — always refer to the folder name for the actual subject.
+
+> 📁 **Folder structure:** The repository uses a numbered folder structure to organize Kubernetes concepts, implementation examples, and hands-on troubleshooting work. The numbering is primarily for navigation and organization and does not represent a fixed learning path. Related topics may use separate or reused numbers as the repository evolves. Each folder contains its own context and implementation details.
+
+
+
 
 ## Goals
-- Build strong Kubernetes fundamentals
-- Gain production-level troubleshooting skills
-- Prepare for the CKA certification
-- Strengthen DevOps engineering knowledge
+- Build strong, practical Kubernetes administration skills
+- Develop confidence in troubleshooting Kubernetes workloads and cluster issues
+- Practice Kubernetes concepts through hands-on labs and real-world scenarios
+- Strengthen Kubernetes knowledge to a CKA-level standard
+- Apply Kubernetes concepts within broader DevOps and SRE workflows
 
 ---
 
